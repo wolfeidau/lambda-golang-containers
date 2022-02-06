@@ -1,0 +1,106 @@
+AWSTemplateFormatVersion: "2010-09-09"
+Transform: AWS::Serverless-2016-10-31
+Description: "wolfeidau: API Gateway and container based Lambda resources for the backend service."
+
+Parameters:
+  AppName:
+    Type: String
+    Description: Application Name used to store configuration.
+  Stage:
+    Type: String
+    Description: The stage where the stac is running in, e.g., dev, prod.
+    Default: dev
+  Branch:
+    Type: String
+    Description: The branch the stack was deployed.
+    Default: master
+  LogLevel:
+    Type: String
+    Default: info
+    AllowedValues: ["trace", "debug", "info", "warn", "error", "fatal", "panic"]
+  ImageUri:
+    Type: String
+
+Outputs:
+  ApiLambdaArn:
+    Value: !Ref ApiLambda
+  ApiId:
+    Value: !Ref ApplicationsApi
+  ApiAccessLogGroupName:
+    Value: !Ref ApiAccessLogGroup
+  ApiLambdaLogGroupName:
+    Value: !Ref ApiLambdaLogGroup
+  ApiURL:
+    Value: !Sub "https://${ApplicationsApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+
+Conditions:
+  IsDev: !Equals [!Ref Stage, "dev"]
+  IsProd: !Equals [!Ref Stage, "prod"]
+
+Globals:
+  Function:
+    Timeout: 30
+    MemorySize: 256
+    Environment:
+      Variables:
+        APP_NAME: !Ref AppName
+        STAGE: !Ref Stage
+        BRANCH: !Ref Branch
+        LOG_LEVEL: !Ref LogLevel
+        AWS_ACCOUNT_ID: !Ref "AWS::AccountId"
+        RAW_EVENT_LOGGING: !If [IsDev, "true", "false"]
+
+Resources:
+  ApiAccessLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/apigateway/AccessLog-${ApplicationsApi}
+      RetentionInDays: !If [IsProd, 365, 14]
+
+  ApplicationsApi:
+    Type: AWS::Serverless::Api
+    Properties:
+      EndpointConfiguration:
+        Type: REGIONAL
+      # Use DefinitionBody for swagger file so that we can use CloudFormation intrinsic functions within the swagger file
+      DefinitionBody:
+        'Fn::Transform':
+          Name: 'AWS::Include'
+          Parameters:
+            Location: '../openapi/todo.yaml'
+      StageName: Prod
+      TracingEnabled: true # Enable AWS X-Ray to help debug API requests
+      MethodSettings:
+        - ResourcePath: '/*'
+          HttpMethod: '*'
+          # Disable data trace in production to avoid logging customer sensitive information from requests and responses
+          DataTraceEnabled: !If [IsProd, false, true]
+          LoggingLevel: INFO
+          MetricsEnabled: true
+          ThrottlingRateLimit: 5
+          ThrottlingBurstLimit: 10
+      AccessLogSetting:
+        DestinationArn: !Sub 'arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:${ApiAccessLogGroup}'
+        Format: '$context.identity.sourceIp $context.authorizer.claims.sub [$context.requestTime] "$context.httpMethod $context.resourcePath $context.protocol" $context.status $context.requestId $context.awsEndpointRequestId $context.xrayTraceId $context.responseLatency $context.integrationLatency "$context.error.message"'
+      OpenApiVersion: '3.0.0'
+
+  ApiLambdaLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub "/aws/lambda/${ApiLambda}"
+      RetentionInDays: !If [IsProd, 365, 14]
+
+  ApiLambda:
+    Type: AWS::Serverless::Function
+    Properties:
+      Tracing: Active # Enable AWS X-Ray to help debug API requests
+      PackageType: Image
+      Events:
+        AnyApi:
+          Type: Api
+          Properties:
+            RestApiId: !Ref ApplicationsApi
+            Path: '/*'
+            Method: '*'
+      AutoPublishAlias: live
+      ImageUri: !Ref ImageUri

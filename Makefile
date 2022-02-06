@@ -26,10 +26,14 @@ publish-images:
 deploy-api:
 	@echo "--- deploy stack $(APPNAME)-$(STAGE)-$(BRANCH)-api"
 	$(eval IMAGE_URL := $(shell ko publish --platform=$(PLATFORM) --image-label arch=$(ARCH) --image-label git_hash=$(GIT_HASH) --bare ./cmd/api-lambda))
+	$(eval SAM_BUCKET := $(shell aws ssm get-parameter --name '/config/$(STAGE)/$(BRANCH)/deploy_bucket' --query 'Parameter.Value' --output text))
 
-	@sam deploy \
+	sam deploy \
 		--no-fail-on-empty-changeset \
+		--s3-bucket $(SAM_BUCKET) \
+		--s3-prefix sam/$(GIT_HASH) \
 		--template-file sam/app/api.yaml \
+		--image-repository $(KO_DOCKER_REPO) \
 		--capabilities CAPABILITY_IAM \
 		--tags "environment=$(STAGE)" "branch=$(BRANCH)" "service=$(APPNAME)" \
 		--stack-name $(APPNAME)-$(STAGE)-$(BRANCH)-api \

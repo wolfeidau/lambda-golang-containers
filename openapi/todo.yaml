@@ -16,17 +16,6 @@ tags:
   - name: tasks
     description: Tasks
 paths:
-  /:
-    get:
-      tags:
-        - tasks
-      summary: Redirect to the UI
-      description: |
-        Default operation to redirect to the UI index page.
-      operationId: redirectTodos
-      responses:
-        '302':
-          description: redirect to the UI page
   /todos:
     get:
       tags:
@@ -58,6 +47,14 @@ paths:
                   $ref: '#/components/schemas/Todo'
         '400':
           description: Invalid status value
+      x-amazon-apigateway-integration:
+        uri:
+          'Fn::Sub': 'arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiLambda.Arn}:live/invocations'
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: never
+      # security:
+      #   - sigv4: []
     post:
       tags:
         - tasks
@@ -84,6 +81,14 @@ paths:
                   type: string
               required:
                 - title
+      x-amazon-apigateway-integration:
+        uri:
+          'Fn::Sub': 'arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiLambda.Arn}:live/invocations'
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: never
+      security:
+        - sigv4: []
   '/todos/{todoId}':
     put:
       tags:
@@ -126,6 +131,14 @@ paths:
                     - working
                     - waiting
                     - done
+      x-amazon-apigateway-integration:
+        uri:
+          'Fn::Sub': 'arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiLambda.Arn}:live/invocations'
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: never
+      security:
+        - sigv4: []
     delete:
       tags:
         - tasks
@@ -148,9 +161,21 @@ paths:
         '404':
           description: |
             The todo does not exist.
-
-
+      x-amazon-apigateway-integration:
+        uri:
+          'Fn::Sub': 'arn:${AWS::Partition}:apigateway:${AWS::Region}:lambda:path/2015-03-31/functions/${ApiLambda.Arn}:live/invocations'
+        httpMethod: POST
+        type: aws_proxy
+        passthroughBehavior: never
+      security:
+        - sigv4: []
 components:
+  securitySchemes:
+    sigv4:
+      type: apiKey
+      name: Authorization
+      in: header
+      x-amazon-apigateway-authtype: awsSigv4
   schemas:
     Todo:
       type: object

@@ -19,12 +19,6 @@ func Setup(awscfg config.Config, e *echo.Echo) error {
 
 type todosAPI struct{}
 
-// Redirect to the UI
-// (GET /)
-func (ts *todosAPI) RedirectTodos(c echo.Context) error {
-	return c.NoContent(http.StatusNotImplemented)
-}
-
 // List the available tasks
 // (GET /todos)
 func (ts *todosAPI) ListTodos(c echo.Context, params todosapi.ListTodosParams) error {

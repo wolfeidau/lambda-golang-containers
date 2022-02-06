@@ -7,6 +7,10 @@ import (
 	"time"
 )
 
+const (
+	Sigv4Scopes = "sigv4.Scopes"
+)
+
 // Defines values for TodoStatus.
 const (
 	TodoStatusDone TodoStatus = "done"

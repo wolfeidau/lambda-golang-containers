@@ -67,7 +67,7 @@ Resources:
         'Fn::Transform':
           Name: 'AWS::Include'
           Parameters:
-            Location: '../openapi/todo.yaml'
+            Location: '../../openapi/todo.yaml'
       StageName: Prod
       TracingEnabled: true # Enable AWS X-Ray to help debug API requests
       MethodSettings:
@@ -93,7 +93,6 @@ Resources:
   ApiLambda:
     Type: AWS::Serverless::Function
     Properties:
-      Tracing: Active # Enable AWS X-Ray to help debug API requests
       PackageType: Image
       Events:
         AnyApi:
@@ -104,3 +103,4 @@ Resources:
             Method: '*'
       AutoPublishAlias: live
       ImageUri: !Ref ImageUri
+      Architectures: [arm64]

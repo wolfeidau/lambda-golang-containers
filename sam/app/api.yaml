@@ -20,6 +20,10 @@ Parameters:
     AllowedValues: ["trace", "debug", "info", "warn", "error", "fatal", "panic"]
   ImageUri:
     Type: String
+  LambdaArchitecture:
+    Type: String
+    Description: Translates the Go architecture into to the lambda names.
+    AllowedValues: ["arm64", "amd64"]
 
 Outputs:
   ApiLambdaArn:
@@ -36,6 +40,7 @@ Outputs:
 Conditions:
   IsDev: !Equals [!Ref Stage, "dev"]
   IsProd: !Equals [!Ref Stage, "prod"]
+  IsAmd54: !Equals [!Ref LambdaArchitecture, "amd64"]
 
 Globals:
   Function:
@@ -103,4 +108,5 @@ Resources:
             Method: '*'
       AutoPublishAlias: live
       ImageUri: !Ref ImageUri
-      Architectures: [arm64]
+      Architectures: 
+        - !If [IsAmd54, "x86_64", "arm64"]

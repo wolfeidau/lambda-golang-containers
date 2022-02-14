@@ -18,9 +18,9 @@ deploy-repository:
 		--stack-name $(APPNAME)-$(STAGE)-$(BRANCH)-repository \
 		--parameter-overrides AppName=$(APPNAME) Stage=$(STAGE) Branch=$(BRANCH)
 
-.PHONY: publish-images
-publish-images:
-	ko publish --platform=$(PLATFORM) --image-label arch=$(ARCH) --image-label git_hash=$(GIT_HASH) --bare ./cmd/api-lambda
+.PHONY: docker-login
+docker-login:
+	aws ecr get-login-password | docker login --username AWS --password-stdin $(KO_DOCKER_REPO)
 
 .PHONY: deploy-api
 deploy-api:
@@ -37,4 +37,4 @@ deploy-api:
 		--capabilities CAPABILITY_IAM \
 		--tags "environment=$(STAGE)" "branch=$(BRANCH)" "service=$(APPNAME)" \
 		--stack-name $(APPNAME)-$(STAGE)-$(BRANCH)-api \
-		--parameter-overrides AppName=$(APPNAME) Stage=$(STAGE) Branch=$(BRANCH) ImageUri=$(IMAGE_URL)
+		--parameter-overrides AppName=$(APPNAME) Stage=$(STAGE) Branch=$(BRANCH) ImageUri=$(IMAGE_URL) LambdaArchitecture=$(ARCH)

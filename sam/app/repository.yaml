@@ -29,3 +29,19 @@ Resources:
     Type: AWS::ECR::Repository
     Properties:
       RepositoryName: !Sub "${AppName}_${Stage}_${Branch}"
+      LifecyclePolicy: 
+        LifecyclePolicyText: |
+          {
+            "rules": [{
+                "rulePriority": 1,
+                "selection": {
+                  "tagStatus": "untagged",
+                  "countType": "imageCountMoreThan",
+                  "countNumber": 2
+                },
+                "action": {
+                  "type": "expire"
+                }
+              }
+            ]
+          }

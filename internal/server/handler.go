@@ -17,11 +17,22 @@ func Setup(awscfg config.Config, e *echo.Echo) error {
 	return nil
 }
 
-type todosAPI struct{}
+type todosAPI struct {
+	todos map[string]*todosapi.Todo
+}
 
 // List the available tasks
 // (GET /todos)
 func (ts *todosAPI) ListTodos(c echo.Context, params todosapi.ListTodosParams) error {
+
+	result := make([]todosapi.Todo, 0)
+
+	for _, v := range ts.todos {
+		if checkStatus(params.Status, v.Status) {
+			result = append(result, *v)
+		}
+	}
+
 	return c.NoContent(http.StatusNotImplemented)
 }
 
@@ -41,4 +52,12 @@ func (ts *todosAPI) DeleteTodo(c echo.Context, todoId int64) error {
 // (PUT /todos/{todoId})
 func (ts *todosAPI) UpdateTodo(c echo.Context, todoId int64) error {
 	return c.NoContent(http.StatusNotImplemented)
+}
+
+func checkStatus(filter *todosapi.ListTodosParamsStatus, status todosapi.TodoStatus) bool {
+	if filter == nil {
+		return true
+	}
+
+	return *filter == todosapi.ListTodosParamsStatus(status)
 }

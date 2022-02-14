@@ -2,6 +2,9 @@
 
 This project illustrates how to use docker containers for golang based lambdas with support for arm64 and x86_64 architectures.
 
+# Why Containers?
+
+There is lots of tooling to scan and inventory containers especially with the [buildinfo support coming to Go in 1.18](https://pkg.go.dev/debug/buildinfo@master). This will enable security tools to inventory container packages and Go Modules, and check these against a list of vulnerable versions.
 # overview
 
 This project doesn't require docker to be installed as it uses [ko](https://github.com/google/ko) to publish the containers.

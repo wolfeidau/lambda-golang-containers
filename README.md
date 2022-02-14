@@ -51,7 +51,15 @@ cp .envrc.example .envrc
 
 Then modify these vars in this example file.
 
-# Commands
+## Local
+
+To publish the container and test it locally, in this example I override the default of `arm64` with `amd64` to run on my intel machine.
+
+```
+ARCH=amd64 make docker-publish-local
+```
+
+## Commands
 
 To deploy the ECR repository template.
 

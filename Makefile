@@ -24,6 +24,10 @@ docker-login:
 
 	aws ecr get-login-password | docker login --username AWS --password-stdin $(KO_DOCKER_REPO)
 
+.PHONY: docker-publish-local
+docker-publish-local:
+	ko publish --local --platform=$(PLATFORM) --image-label arch=$(ARCH) --image-label git_hash=$(GIT_HASH) --bare ./cmd/api-lambda
+
 .PHONY: deploy-api
 deploy-api:
 	@echo "--- deploy stack $(APPNAME)-$(STAGE)-$(BRANCH)-api"

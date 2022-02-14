@@ -45,3 +45,19 @@ Resources:
               }
             ]
           }
+
+  RepositoryArnParam:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "/config/${Stage}/${Branch}/${AppName}/repository_arn"
+      Type: "String"
+      Value: !GetAtt Repository.Arn
+      Description: "ECR Repository ARN"
+
+  RepositoryUriParam:
+    Type: "AWS::SSM::Parameter"
+    Properties:
+      Name: !Sub "/config/${Stage}/${Branch}/${AppName}/repository_uri"
+      Type: "String"
+      Value: !GetAtt Repository.RepositoryUri
+      Description: "ECR Repository URI"

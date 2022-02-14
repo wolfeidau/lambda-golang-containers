@@ -1,0 +1,6 @@
+#!/bin/bash
+export AWS_PROFILE=myaws
+export AWS_DEFAULT_REGION=ap-southeast-2
+export AWS_REGION=ap-southeast-2
+
+export SAM_BUCKET=whatever

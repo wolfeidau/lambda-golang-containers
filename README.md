@@ -36,6 +36,41 @@ ko publish --platform=linux/arm64 --image-label arch=arm64 --image-label git_has
 
 Take a look in the `Makefile` for more details of how I configure these parameters.
 
+# Deploying
+
+## Prerequisites
+
+1. You will need to export an `AWS_PROFILE` and `AWS_DEFAULT_REGION` to enable access to AWS.
+2. You will need to export `SAM_BUCKET` environment variable which contains the name of an S3 bucket in the same region as your Deploying.
+
+To manage these environment variables you can create an `.envrc` using the `.envrc.example` and update it with your settings, this is used with [direnv](https://direnv.net/).
+
+```
+cp .envrc.example .envrc
+```
+
+Then modify these vars in this example file.
+
+# Commands
+
+To deploy the ECR repository template.
+
+```
+make deploy-repository
+```
+
+To login to docker using the ECR repository.
+
+```
+make docker-login
+```
+
+To deploy the API.
+
+```
+make deploy-api
+```
+
 # License
 
 This application is released under Apache 2.0 license and is copyright [Mark Wolfe](https://www.wolfe.id.au).

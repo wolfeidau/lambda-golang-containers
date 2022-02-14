@@ -8,7 +8,7 @@ Given the success of containers, and the wide familiarity with the tools and aut
 
 For me the primary interest is around APIs and being able to use the same testing and API infrastructure to deploy services to lambda fronted with API Gateway, as I do for those hosted in ECS or kubernetes behind a load balancer. 
 
-It is easy to scan and inventory containers especially with the [buildinfo support coming to Go in 1.18](https://pkg.go.dev/debug/buildinfo@master) which will enable security tools to inventory container packages and Go Modules, and check these against a list of vulnerable versions.
+As security is critical to API operation the existing tools which can scan and inventory containers especially with the [buildinfo support coming to Go in 1.18](https://pkg.go.dev/debug/buildinfo@master). This will enable security tools to inventory container packages and Go Modules, and check these against a list of vulnerable versions.
 
 # overview
 
